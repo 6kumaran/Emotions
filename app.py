@@ -10,7 +10,7 @@ app = Flask(__name__)
 # Load the pre-trained Haar Cascade classifier for face detection
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 # Load a pre-trained emotion recognition model
-emotion_model = load_model('model.h5')
+emotion_model = load_model('model.h5')  # Ensure this file is in the same directory as app.py
 # Define emotion labels
 emotion_labels = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
 
@@ -26,11 +26,16 @@ def detect_emotions(frame):
         roi_gray = cv2.resize(roi_gray, (48, 48))
         roi_gray = roi_gray.astype('float32') / 255
         roi_gray = roi_gray.reshape(1, 48, 48, 1)
+
+        # Predict the emotion
         predictions = emotion_model.predict(roi_gray)
         max_index = predictions[0].argmax()
         predicted_emotion = emotion_labels[max_index]
+        
+        # Draw rectangle around the face and put text
         cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
         cv2.putText(frame, predicted_emotion, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36, 255, 12), 2)
+
     return frame, predicted_emotion
 
 @app.route('/')
@@ -49,10 +54,12 @@ def process_image():
     frame = cv2.imdecode(np_image, cv2.IMREAD_COLOR)
 
     # Process the frame to detect emotions
-    frame, emot = detect_emotions(frame)
-
-    # Return the detected emotion
-    return jsonify({"emotion": emot})
+    try:
+        frame, emot = detect_emotions(frame)
+        return jsonify({"emotion": emot})
+    except Exception as e:
+        print(f"Error processing image: {e}")
+        return jsonify({"error": "Failed to process image"}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
