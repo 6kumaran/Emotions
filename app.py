@@ -2,9 +2,10 @@ from flask import Flask, render_template, Response, jsonify
 import cv2
 import pandas as pd
 from tensorflow.keras.models import load_model
+import os
 
 app = Flask(__name__)
-
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 # Load the pre-trained Haar Cascade classifier for face detection
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 # Load a pre-trained emotion recognition model
