@@ -18,7 +18,9 @@
             color: #4CAF50;
         }
 
-        img {
+        video {
+            width: 640px;
+            height: 480px;
             border: 2px solid #4CAF50;
             border-radius: 10px;
             margin-top: 20px;
@@ -62,27 +64,49 @@
 </head>
 <body>
     <h1>Emotion Detection and Music Recommendation</h1>
-    <img src="{{ url_for('video_feed') }}" width="640" height="480">
-    <button id="stopButton">Stop Video</button>
+    <video id="video" autoplay></video>
+    <button id="captureButton">Capture</button>
     <div id="recommendations"></div>
 
     <script>
-        document.getElementById('stopButton').onclick = function() {
-            fetch('/stop_video')
-                .then(response => response.json())
-                .then(data => {
-                    const emotion = data.emotion;
-                    fetch('/get_recommendations/' + emotion)
-                        .then(response => response.json())
-                        .then(data => {
-                            const recommendationsDiv = document.getElementById('recommendations');
-                            recommendationsDiv.innerHTML = '<h2>Recommended Songs:</h2>';
-                            data.recommendations.forEach(song => {
-                                recommendationsDiv.innerHTML += `<p>${song.name} by ${song.artist}</p>`;
-                            });
-                        });
-                });
-        };
+        const video = document.getElementById('video');
+
+        // Access the webcam
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                video.srcObject = stream;
+            })
+            .catch(err => {
+                console.error("Error accessing the camera: " + err);
+            });
+
+        document.getElementById('captureButton').addEventListener('click', () => {
+            // Capture the video frame and send it to the server
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0);
+            const dataURL = canvas.toDataURL('image/png');
+
+            // Send the captured image to the server
+            fetch('/process_image', {
+                method: 'POST',
+                body: JSON.stringify({ image: dataURL }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                // Display recommendations if needed
+                // You can add code here to display song recommendations based on the processed image
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
     </script>
 </body>
 </html>
