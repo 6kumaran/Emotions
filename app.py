@@ -4,7 +4,6 @@ import cv2
 import numpy as np
 import pandas as pd
 from tensorflow.keras.models import load_model
-import os
 
 app = Flask(__name__)
 
@@ -32,7 +31,6 @@ def detect_emotions(frame):
         predicted_emotion = emotion_labels[max_index]
         cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
         cv2.putText(frame, predicted_emotion, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36, 255, 12), 2)
-    print(f"Detected emotion: {predicted_emotion}")
     return frame, predicted_emotion
 
 @app.route('/')
@@ -52,7 +50,7 @@ def process_image():
 
     # Process the frame to detect emotions
     frame, emot = detect_emotions(frame)
-    print("Received image data")
+
     # Return the detected emotion
     return jsonify({"emotion": emot})
 
