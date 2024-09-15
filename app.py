@@ -52,7 +52,7 @@ def process_image():
 
     # Process the frame to detect emotions
     frame, emot = detect_emotions(frame)
-
+    print("Received image data")
     # Return the detected emotion
     return jsonify({"emotion": emot})
 
