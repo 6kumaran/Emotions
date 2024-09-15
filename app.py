@@ -1,4 +1,4 @@
-from flask import Flask, render_template, Response, request, jsonify
+from flask import Flask, render_template, request, jsonify
 import base64
 import cv2
 import numpy as np
@@ -18,7 +18,6 @@ emotion_labels = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutr
 # Load music data
 Music_Player = pd.read_csv("data_moods.csv")  # Ensure this file is in the same directory as app.py
 
-# Function to detect emotions in the image
 def detect_emotions(frame):
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     faces = face_cascade.detectMultiScale(gray_frame, scaleFactor=1.3, minNeighbors=5)
