@@ -13,7 +13,7 @@ emotion_model = load_model('model.h5')
 emotion_labels = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
 
 # Load music data
-Music_Player = pd.read_csv("C:/Users/KUMARAN/OneDrive/Desktop/Spotify_Music_data_to_identify_the_moods/data_moods.csv")
+Music_Player = pd.read_csv("data_moods.csv")
 Music_Player = Music_Player[['name', 'artist', 'mood', 'popularity']]
 
 # Global variables to control video feed
