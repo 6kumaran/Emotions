@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion Detection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #4CAF50;
+        }
+
+        img {
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
+            margin-top: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #recommendations {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #recommendations h2 {
+            color: #333;
+        }
+
+        #recommendations p {
+            margin: 5px 0;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>Emotion Detection and Music Recommendation</h1>
+    <img src="{{ url_for('video_feed') }}" width="640" height="480">
+    <button id="stopButton">Stop Video</button>
+    <div id="recommendations"></div>
+
+    <script>
+        document.getElementById('stopButton').onclick = function() {
+            fetch('/stop_video')
+                .then(response => response.json())
+                .then(data => {
+                    const emotion = data.emotion;
+                    fetch('/get_recommendations/' + emotion)
+                        .then(response => response.json())
+                        .then(data => {
+                            const recommendationsDiv = document.getElementById('recommendations');
+                            recommendationsDiv.innerHTML = '<h2>Recommended Songs:</h2>';
+                            data.recommendations.forEach(song => {
+                                recommendationsDiv.innerHTML += `<p>${song.name} by ${song.artist}</p>`;
+                            });
+                        });
+                });
+        };
+    </script>
+</body>
+</html>
