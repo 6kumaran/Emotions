@@ -100,8 +100,9 @@
             .then(response => response.json())
             .then(data => {
                 console.log(data);
-                // Display recommendations if needed
-                // You can add code here to display song recommendations based on the processed image
+                // Display the detected emotion
+                const recommendationsDiv = document.getElementById('recommendations');
+                recommendationsDiv.innerHTML = `<h2>Detected Emotion: ${data.emotion}</h2>`;
             })
             .catch(error => {
                 console.error('Error:', error);
