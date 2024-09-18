@@ -9,7 +9,7 @@ face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_fronta
 
 # Load a pre-trained emotion recognition model (modified to handle input shape warning)
 # Make sure the model definition uses `Input` explicitly in its architecture
-emotion_model = load_model('C:/Users/KUMARAN/OneDrive/Desktop/Emotion Detection/model.h5')
+emotion_model = load_model('model.h5')
 
 # Define emotion labels
 emotion_labels = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
@@ -34,7 +34,7 @@ def detect_emotions(frame):
     return frame, predicted_emotion
 
 # Load music player data
-Music_Player = pd.read_csv("C:/Users/KUMARAN/OneDrive/Desktop/Spotify_Music_data_to_identify_the_moods/data_moods.csv")
+Music_Player = pd.read_csv("data_moods.csv")
 Music_Player = Music_Player[['name', 'artist', 'mood', 'popularity']]
 Music_Player["mood"].value_counts()
 
