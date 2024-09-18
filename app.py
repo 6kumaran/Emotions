@@ -1,21 +1,21 @@
-from flask import Flask, render_template, request, jsonify
-import base64
+from flask import Flask, render_template, Response
 import cv2
-import numpy as np
 import pandas as pd
 from tensorflow.keras.models import load_model
 
+# Initialize the Flask app
 app = Flask(__name__)
 
-# Load the pre-trained Haar Cascade classifier for face detection
+# Load the face detector and emotion model
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-# Load a pre-trained emotion recognition model
-emotion_model = load_model('model.h5')  # Ensure this file is in the same directory as app.py
+emotion_model = load_model('path_to_your_model.h5')
+
 # Define emotion labels
 emotion_labels = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
 
-# Load music data
-Music_Player = pd.read_csv("data_moods.csv")  # Ensure this file is in the same directory as app.py
+# Load the music data
+Music_Player = pd.read_csv('path_to_your_data.csv')
+Music_Player = Music_Player[['name', 'artist', 'mood', 'popularity']]
 
 def detect_emotions(frame):
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -26,40 +26,44 @@ def detect_emotions(frame):
         roi_gray = cv2.resize(roi_gray, (48, 48))
         roi_gray = roi_gray.astype('float32') / 255
         roi_gray = roi_gray.reshape(1, 48, 48, 1)
-
-        # Predict the emotion
         predictions = emotion_model.predict(roi_gray)
         max_index = predictions[0].argmax()
         predicted_emotion = emotion_labels[max_index]
-        
-        # Draw rectangle around the face and put text
-        cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
-        cv2.putText(frame, predicted_emotion, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36, 255, 12), 2)
+    return predicted_emotion
 
-    return frame, predicted_emotion
+def Recommend_Songs(emot):
+    if emot == 'Disgust':
+        Play = Music_Player[Music_Player['mood'] == 'Sad']
+    elif emot in ['Happy', 'Sad']:
+        Play = Music_Player[Music_Player['mood'] == 'Happy']
+    elif emot in ['Fear', 'Angry']:
+        Play = Music_Player[Music_Player['mood'] == 'Calm']
+    else:
+        Play = Music_Player[Music_Player['mood'] == 'Energetic']
+    Play = Play.sort_values(by="popularity", ascending=False).head(5)
+    return Play[['name', 'artist']].to_dict(orient='records')
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/process_image', methods=['POST'])
-def process_image():
-    data = request.get_json()
-    image_data = data['image']
+def generate_video():
+    cap = cv2.VideoCapture(0)
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+        predicted_emotion = detect_emotions(frame)
+        # Process the frame for display if needed
+        ret, buffer = cv2.imencode('.jpg', frame)
+        frame = buffer.tobytes()
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
-    # Decode the image
-    header, encoded = image_data.split(',', 1)
-    image = base64.b64decode(encoded)
-    np_image = np.frombuffer(image, np.uint8)
-    frame = cv2.imdecode(np_image, cv2.IMREAD_COLOR)
+@app.route('/video_feed')
+def video_feed():
+    return Response(generate_video(),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
 
-    # Process the frame to detect emotions
-    try:
-        frame, emot = detect_emotions(frame)
-        return jsonify({"emotion": emot})
-    except Exception as e:
-        print(f"Error processing image: {e}")
-        return jsonify({"error": "Failed to process image"}), 500
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(debug=True)
