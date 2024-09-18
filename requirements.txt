@@ -1,5 +1,4 @@
 Flask
-gunicorn
-opencv-python
-pandas
+opencv-python-headless
 tensorflow
+pandas
