@@ -8,13 +8,13 @@ app = Flask(__name__)
 
 # Load the face detector and emotion model
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-emotion_model = load_model('path_to_your_model.h5')
+emotion_model = load_model('model.h5')
 
 # Define emotion labels
 emotion_labels = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
 
 # Load the music data
-Music_Player = pd.read_csv('path_to_your_data.csv')
+Music_Player = pd.read_csv('data_moods.csv')
 Music_Player = Music_Player[['name', 'artist', 'mood', 'popularity']]
 
 def detect_emotions(frame):
