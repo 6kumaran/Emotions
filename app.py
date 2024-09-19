@@ -15,7 +15,6 @@ emotion_labels = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutr
 
 # Load music data
 Music_Player = pd.read_csv('data_moods.csv')  # Update with your CSV path
-Music_Player = Music_Player[['name', 'artist', 'mood', 'popularity']]
 
 def detect_emotions(frame):
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -86,5 +85,3 @@ if st.button("Start Camera"):
         st.write("Recommended songs to lighten up your mood:")
         recommendations = recommend_songs(final_emotion)
         st.write(recommendations)
-
-    cv2.destroyAllWindows()
