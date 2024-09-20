@@ -74,7 +74,7 @@ def main():
     video_placeholder = st.empty()
     
     if run:
-        cap = cv2.VideoCapture(0)
+        cap = cv2.VideoCapture(1)
 
         if not cap.isOpened():
             st.error("Error opening video stream or file")
